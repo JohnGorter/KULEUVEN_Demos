@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <script>
+    var John = {
+        getValue:function(){ return "test";}
+    }
+    </script>
+   
+    <div id="todoapp">
+        <div v-bind:john="John.getValue()">
+
+        </div>
+        <ol>
+            <li v-for="todo in getDone(todos)"> 
+                <span v-if="!todo.done">
+                    <p>Using mustaches: {{ todo.title }}</p>
+                    <p>Using v-html directive: <span v-html="todo.title"></span></p>
+                </span>
+            </li>
+        </ol>
+
+        todo:<input type="text" v-model="newtodo" placeholder="add new item">
+        <button v-bind:disabled="disabled" @click="addTodo">Add</button>
+    </div>
+
+    <script>
+    var todoapp = new Vue({
+        el:"#todoapp",
+        methods: {
+            addTodo: function(){
+                this.todos.push({title:this.newtodo, desciption:this.newtodo, done:false});
+                this.newtodo = "";
+            },
+            getDone: function(items){
+                return items.filter(i => i.done == false);
+            }
+        },
+        data: {
+            John: {
+                getValue: function() { return John.getValue() }
+            },
+            disabled:true,
+            newtodo: "",
+            todos: [
+                { title:"<strong>test</strong>", description:"test", done:false},
+                { title:"test1", description:"test2", done:false},
+                { title:"test2", description:"test3", done:true},
+                { title:"test3", description:"test4", done:false},
+            ]
+        }
+    });
+    </script>
+
+</body>
+</html>

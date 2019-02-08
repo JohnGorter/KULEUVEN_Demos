@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    hello world
+
+    <div id="maindiv">
+        <div>
+          <button id="btnEvent" onclick="raiseEvent();">raise a custom event</button>
+        </div>
+    </div>
+
+    <script>
+    document.querySelector("#maindiv").addEventListener('product-added', (e) => {
+        console.log("new product added", e)
+    }, false);
+
+    function raiseEvent(){
+        document.querySelector("#btnEvent").dispatchEvent(new CustomEvent("product-added", { detail:"john", bubbles:true, composed:true}));
+    }
+    </script>
+    <john-name></john-name>
+    <script>
+        class johnName extends HTMLElement {
+            connectedCallback(){
+                this.render();
+            }
+            render(){
+                this.innerHTML = "<h1>Hello world</h1>";
+            }
+
+            toJohn(){
+                console.warn("dont touch me!");
+                dispatchEvent()
+            }
+        }
+        customElements.define('john-name', johnName);
+
+        
+    </script>
+</body>
+</html>

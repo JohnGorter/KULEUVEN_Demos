@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.js"></script>
+</head>
+<style>
+    ul { padding-left:0px;}
+    .avatar { border-radius: 50%;width:25px;height:25px;}
+    .card { display:flex;margin:5px;padding:10px;border:1px solid black;box-shadow:rgb(124, 124, 124) 5px 5px 5px;}
+    .details { display:flex;flex-flow:column;padding-left: 20px;font-size: 12px;}
+</style>
+<body>
+    <!-- template for the main app -->
+    <div id="app">
+        <john-test john="a" class="blah"></john-test>
+        <async-example></async-example>
+        <search-bar @filter="dofilter"></search-bar>
+        <ul><li is="person-card" v-for="p in filterpersons" v-bind:person="p"></li></ul>
+        <person-form @add="persons.push($event)"></person-form>
+    </div>
+
+    <script>
+    import('/john.js').then(() => console.log("test"));
+    </script>
+    <script>
+        Vue.component('async-example',  
+            () => import('/async-component.js')
+        )
+
+
+    Vue.component('john-test', {
+        inheritAttrs:false,
+        template:`<div class="test"  john="b">Johns World
+            <span v-bind="$attrs">test</span>
+            </div>`
+    }); 
+    Vue.component('person-card', {
+        props:['person'],
+        template:`<div class="card">
+                <img class="avatar" :src="person.avatarUrl" />
+                <div class="details"> 
+                        <div>{{person.firstName | uppercase }} </div>
+                        <div>{{person.lastName}} </div>
+                </div>
+                </div>`,
+        filters:{
+            uppercase: function(v){
+                return v.toUpperCase();
+            }
+        }
+    }
+    );   
+    
+    Vue.component('search-bar',{
+        data: function() { return { search:'', bgColor:'yellow'}},
+        template:`
+        <div><input v-focuscolor:backgroundColor="bgColor" type="search" v-model="search">
+            <button 
+            @click.shift.exact="$emit('filter', {type:'lastName', filter:search})" 
+            @click.exact="$emit('filter', {type:'firstName', filter:search})"
+        >Filter (shift+click to filter on lastname)</button></div>
+        `  
+    })
+
+    Vue.component('person-form', {
+        data: function() {
+            return { firstName:'',  lastName:'', avatarUrl:'' }
+        },
+        template:`
+            <div>
+                <input type="text" v-model="firstName" placeholder="firstname" />
+                <input type="text" v-model="lastName" placeholder="lastname" />
+                <input type="text" v-model="avatarUrl" placeholder="avatarurl" />
+                <button @click="$emit('add', { firstName, lastName, avatarUrl})">Add</button>
+            </div>
+        `
+    });
+
+    Vue.directive('myif', function(el, binding){
+        if (binding.value) {
+            if (el && el.parentElement)
+                el.parentElement.removeChild(el);
+        }
+    });
+
+    Vue.directive('focuscolor', {
+        inserted: function(el, binding) {
+            el.addEventListener('focus', function(){
+                 el.style[binding.arg] = binding.value
+            })
+            el.addEventListener('blur', function(){
+                el.style[binding.arg]  = 'white';
+            })
+        },
+        update: function (el, binding, vnode) {
+            console.log("el", document.hasFocus(el));
+            document.hasFocus(el) ?  el.style[binding.arg] = binding.value : el.style[binding.arg]  = 'none';
+        },
+        bind: function (el, binding, vnode) {
+            console.log("el", document.hasFocus(el));
+            document.hasFocus(el) ?  el.style[binding.arg] = binding.value : el.style[binding.arg]  = 'none';
+    }
+    })
+
+
+
+
+    var app = new Vue({
+        el:'#app',
+        methods:{
+            dofilter(e){
+                this.filter=e;
+                console.log('filterfirstname');
+            },
+            dolog: function(){
+                console.log('filterlastname');
+            }
+        },
+        data: { persons:[], filter:''},
+        computed:{
+            filterpersons: function() {
+                return this.filter ? this.persons.filter(p => p[this.filter.type].indexOf(this.filter.filter) > -1) : this.persons
+            }
+        },
+        created:function() {
+            for (let i = 0; i < 5; i++) 
+                this.persons.push({firstName:faker.name.firstName(), lastName:faker.name.lastName(), avatarUrl:faker.image.avatar()})
+        }
+    })
+    </script>
+</body>
+</html>
